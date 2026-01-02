@@ -1,0 +1,29 @@
+
+tokenizer_file: ./tokenizers/tokenizer_{0}.json
+yml_config_file_name: config.yml
+#config_dir: ./
+dataset_name: opus_books
+Subset: en-fr
+src_lang: en
+tgt_lang: fr
+batch_size: 8
+effective_batch: 32
+num_epochs: 20
+model:
+    On_DS_name: OriginalTexts
+    d_model: 64
+#    d_f: 2048
+    d_f: 128
+    dropout: 0.1
+    N_enc: 6
+    N_dec: 6
+    heads: 8
+    lr: 1e-4
+    checkpoint_dir_name: checkpoints
+    model_basename: trmodel
+#    last_epoch: false    # store epoch num
+#    model_dir: false
+
+experiment:
+    name: TransOpusBook
+
