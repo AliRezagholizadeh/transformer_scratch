@@ -7,17 +7,18 @@ Subset: en-fr
 src_lang: en
 tgt_lang: fr
 batch_size: 8
-effective_batch: 32
-num_epochs: 20
+effective_batch: 64
+num_epochs: 30
 model:
-    On_DS_name: OriginalTexts
-    d_model: 64
+#    On_DS_name: OriginalTexts
+    On_DS_name: OpusBText
+    d_model: 16
 #    d_f: 2048
-    d_f: 128
+    d_f: 32
     dropout: 0.1
     N_enc: 6
     N_dec: 6
-    heads: 8
+    heads: 4
     lr: 1e-4
     checkpoint_dir_name: checkpoints
     model_basename: trmodel

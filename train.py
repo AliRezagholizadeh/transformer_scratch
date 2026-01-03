@@ -1,7 +1,7 @@
 import yaml
 from torch import nn
 import torch
-import validators
+# import validators
 from torch.utils.data import DataLoader, random_split, Dataset
 from torch.utils.tensorboard import SummaryWriter
 from model import build_transformer
@@ -30,7 +30,7 @@ def ds_iterator(ds, key, lang):
 
 def get_build_tokenizer(config, ds, lng):
     tokenizer_path = Path(config["tokenizer_file"].format(lng))
-    Path(str(Path(config["tokenizer_file"]).parents)).mkdir(parents=True, exist_ok=True)
+    Path(str(Path(config["tokenizer_file"]).parent)).mkdir(parents=True, exist_ok=True)
     if not tokenizer_path.exists():
         tokenizer = Tokenizer(WordLevel(unk_token="[UK]"))
         tokenizer.pre_tokenizer = Whitespace()
@@ -99,10 +99,12 @@ def get_model(config, src_vocab, tgt_vocab):
 
 def train_model(config, tokenizer_src:Tokenizer, tokenizer_tgt:Tokenizer, traindataloader: DataLoader):
     # set device
-    torch.mps.empty_cache()
+    # torch.mps.empty_cache()
     device_name = "mps" if torch.backends.mps.is_available() else "cpu"
+    if(device_name == "cpu"):
+        device_name = "cuda" if torch.cuda.is_available() else "cpu"
     device = torch.device(device_name)
-    cpu_dev = torch.device("cpu")
+    # cpu_dev = torch.device("cpu")
 
     print(f">> Device to train on the data: {device}")
 
