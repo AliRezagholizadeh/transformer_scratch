@@ -204,8 +204,8 @@ class DecoderUnit(nn.Module):
         self.encoder_integrate_attention = MultiHeadAttention(d_model, heads, dropout)
         self.feed_forward = FeedForward(d_model, d_f)
 
-    def forward(self, x, x_enc, enc_mask, target_mask):
-        x = self.residual_connections[0](x, lambda x: self.self_attention(x, x, x, enc_mask))
+    def forward(self, x, x_enc, dec_mask, target_mask):
+        x = self.residual_connections[0](x, lambda x: self.self_attention(x, x, x, dec_mask))
         x = self.residual_connections[1](x, lambda x: self.self_attention(x, x_enc, x_enc, target_mask))
         x = self.residual_connections[2](x, self.feed_forward)
 
@@ -217,9 +217,9 @@ class Decoder(nn.Module):
         self.decoder_n = decoder_n
         self.decoders = nn.ModuleList(DecoderUnit(d_model, d_f, heads, dropout) for _ in range(decoder_n))
         self.norm = NormalizationLayer()
-    def forward(self, x, x_enc, enc_mask, target_mask):
+    def forward(self, x, x_enc, dec_mask, target_mask):
         for i in range(self.decoder_n):
-            x = self.decoders[i](x, x_enc, enc_mask, target_mask)
+            x = self.decoders[i](x, x_enc, dec_mask, target_mask)
 
         # return self.norm(x)  # might want to substitute - however, I guess this might change the nature of input is going to be fed to the next decoder layer.
         return x
@@ -289,7 +289,11 @@ def build_transformer(src_vocab: int, tgt_vocab: int, src_seq: int, tgt_seq: int
 
 
 
+def get_model(config, src_vocab, tgt_vocab):
 
+    transformer_model = build_transformer(src_vocab= src_vocab, tgt_vocab= tgt_vocab, src_seq= config["seq_length"], tgt_seq= config["seq_length"], dropout= config["model"]["dropout"], d_model = config["model"]["d_model"], d_f = config["model"]["d_f"], heads= config["model"]["heads"])
+
+    return transformer_model
 
 
 

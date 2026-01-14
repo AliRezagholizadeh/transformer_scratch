@@ -21,10 +21,10 @@ model:
     heads: 4
     lr: 1e-4
     checkpoint_dir_name: checkpoints
-    model_basename: trmodel
+    model_basename: transformer
 #    last_epoch: false    # store epoch num
 #    model_dir: false
 
 experiment:
-    name: TransOpusBook
+    name: experiments/TransOpusBook
 

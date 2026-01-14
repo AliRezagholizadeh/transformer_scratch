@@ -1,6 +1,13 @@
 import torch
-from torch.utils.data import Dataset
 from tokenizers import Tokenizer
+from torch.utils.data import DataLoader, random_split, Dataset
+from datasets import load_dataset
+from tokenizers.models import WordLevel
+from tokenizers.trainers import WordLevelTrainer
+from tokenizers.pre_tokenizers import Whitespace
+from data_handler import Opus_Dataset, causal_mask
+
+from pathlib import Path
 from typing import Any
 
 
@@ -91,3 +98,81 @@ class Opus_Dataset(Dataset):
 def causal_mask(size):
     # lower matrix of ones in size of (1, size, size)
     return torch.tril(torch.ones(1,size,size)).type(torch.int64)
+
+
+
+
+
+
+
+
+def opusbooks_ds_loader(config):
+    ds = load_dataset(config['dataset_name'], f'{config["Subset"]}', split="train")
+    config["key"] = "translation"
+    return ds
+
+def ds_iterator(ds, key, lang):
+    # related to Opus_Books dataset's structure
+    for item in ds[key]:
+        yield item[lang]
+
+
+def get_build_tokenizer(config, ds, lng):
+    tokenizer_path = Path(config["tokenizer_file"].format(lng))
+    Path(str(Path(config["tokenizer_file"]).parent)).mkdir(parents=True, exist_ok=True)
+    if not tokenizer_path.exists():
+        tokenizer = Tokenizer(WordLevel(unk_token="[UK]"))
+        tokenizer.pre_tokenizer = Whitespace()
+        trainer = WordLevelTrainer(special_tokens = ["[UK]", "[PAD]", "[SOS]", "[EOS]"], min_frequency = 2)
+        tokenizer.train_from_iterator(ds_iterator(ds, config['key'], lng), trainer= trainer)
+        tokenizer.save(str(tokenizer_path))
+
+    else:
+        tokenizer = Tokenizer.from_file(str(tokenizer_path))
+
+    return tokenizer
+
+def sequence_length_finder(config, ds_raw, tokenizer_src: Tokenizer, tokenizer_tgt: Tokenizer):
+    # Built for Opus Books Dataset
+    max_src_length = 0
+    max_tgt_length = 0
+    for item in ds_raw[config["key"]]:
+        src_item_ids = tokenizer_src.encode(item[config["src_lang"]]).ids
+        tgt_item_ids = tokenizer_tgt.encode(item[config["tgt_lang"]]).ids
+        max_src_length = max(max_src_length, len(src_item_ids))
+        max_tgt_length = max(max_tgt_length, len(tgt_item_ids))
+
+    # set seq_length
+    margin = 20
+    seq_length = max(max_src_length, max_tgt_length) + margin
+
+    return max_src_length, max_tgt_length, seq_length
+
+
+def create_ds_dl(config, batch_size, train_num_workers):
+    # create torch dataset and DataLoader
+
+    ds_raw = opusbooks_ds_loader(config)
+    tokenizer_src = get_build_tokenizer(config, ds_raw, config["src_lang"])
+    tokenizer_tgt = get_build_tokenizer(config, ds_raw, config["tgt_lang"])
+
+    # split dataset: 0.9 training and 0.1 validation
+    train_size = int(0.9 * len(ds_raw))
+    valid_size = len(ds_raw) - train_size
+    training_raw_ds, validation_raw_ds = random_split(ds_raw, [train_size, valid_size])
+
+    # find sequence length
+    src_seq, tgt_seq, seq_length = sequence_length_finder(config, ds_raw, tokenizer_src, tokenizer_tgt)
+    config["src_seq"] = src_seq
+    config["tgt_seq"] = tgt_seq
+    config["seq_length"] = seq_length
+    # create torch Dataset for training and valid dataset
+    training_DS = Opus_Dataset(config, training_raw_ds, config["src_lang"], config["tgt_lang"], tokenizer_src, tokenizer_tgt, seq_length)
+    valid_DS = Opus_Dataset(config, validation_raw_ds, config["src_lang"], config["tgt_lang"], tokenizer_src, tokenizer_tgt, seq_length)
+
+    # DataLoader
+    training_DL = DataLoader(training_DS, batch_size= batch_size, num_workers = train_num_workers, shuffle= True)
+    valid_DL = DataLoader(valid_DS, batch_size= 1, shuffle= True)
+
+    return training_DS, valid_DS, training_DL, valid_DL, tokenizer_src, tokenizer_tgt
+

@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from tokenizers import Tokenizer
-from dataset import causal_mask
+from data_handler import causal_mask
 from torch.utils.data import DataLoader
 
 class TrModelNLPValidation:
