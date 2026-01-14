@@ -7,18 +7,18 @@ Subset: en-fr
 src_lang: en
 tgt_lang: fr
 batch_size: 8
-effective_batch: 64
-num_epochs: 30
+effective_batch: 32
+num_epochs: 20
 model:
 #    On_DS_name: OriginalTexts
     On_DS_name: OpusBText
-    d_model: 16
+    d_model: 64
 #    d_f: 2048
-    d_f: 32
+    d_f: 128
     dropout: 0.1
-    N_enc: 6
-    N_dec: 6
-    heads: 4
+    N_enc: 2
+    N_dec: 2
+    heads: 8
     lr: 1e-4
     checkpoint_dir_name: checkpoints
     model_basename: transformer
@@ -26,5 +26,6 @@ model:
 #    model_dir: false
 
 experiment:
-    name: experiments/TransOpusBook
+    name: TransOpusBook
+    dir: experiment
 

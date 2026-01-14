@@ -167,7 +167,7 @@ def validation2():
 
 from config import get_config, find_model_conf_dir
 from pathlib import Path
-from train import get_model, create_torch_Dataset
+from train_singleG import get_model, create_torch_Dataset
 
 if __name__ == "__main__":
     config = get_config("config.yml")

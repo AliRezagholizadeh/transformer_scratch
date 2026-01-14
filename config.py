@@ -104,7 +104,7 @@ def find_model_conf_dir(config):
     Return:
     """
     # epoch = None
-    except_keys = ["model/last_epoch", "model/model_dir", "config_dir", "experiment/name"]
+    except_keys = ["model/last_epoch", "model/model_dir", "config_dir", "experiment/name", "experiment/dir", "num_epochs"]
 
     model_dir = None
     config_model = config.get("model", None)
@@ -115,7 +115,8 @@ def find_model_conf_dir(config):
         # find corresponding checkpoint dir given main parameters in config.
 
         # model checkpoint base dir
-        model_base_dir = Path('.')/config["model"]["checkpoint_dir_name"]
+
+        model_base_dir = Path('.')/config["model"]["checkpoint_dir_name"]/config["model"]["model_basename"]
         # mkdir if required
         if(not model_base_dir.is_dir()):
             model_base_dir.mkdir(parents=True, exist_ok=True)
@@ -164,15 +165,17 @@ def find_model_conf_dir(config):
         # If a right model dir not found, create and copy the current config
         if(not model_dir):
             print("✅ New root made for storing the model. ")
-            model_dir = model_base_dir / config["model"]["model_basename"] / f"hyperP_setting_{model_indx}"
+            model_dir = model_base_dir / f"hyperP_setting_{model_indx}"
             model_dir.mkdir(parents=True, exist_ok=True)
 
-            # set experiemnt dirs/sub dirs
-            exp_base_dir = Path('.') / config["experiment"]["name"]
+            # set experiment dirs/sub dirs
+            exp_base_dir = Path('.') / config["experiment"]["dir"] / config["experiment"]["name"]
+
             # mkdir if required
             if (not exp_base_dir.is_dir()):
                 exp_base_dir.mkdir(parents=True, exist_ok=True)
-            exp_dir = exp_base_dir / config["model"]["model_basename"] / f"hyperP_setting_{model_indx}"
+
+            exp_dir = exp_base_dir /  f"hyperP_setting_{model_indx}"
             exp_dir.mkdir(parents=True, exist_ok=True)
 
             # add model/model_dir and config_dir
@@ -180,7 +183,7 @@ def find_model_conf_dir(config):
             config.update({"config_dir": str(model_dir)})
 
             # update experiment
-            config["experiment"]["dir"] = exp_dir
+            config["experiment"]["dir"] = str(exp_dir)
 
             # store the updated config file in the checkpoint dir
             conf_file = str(model_dir/config["yml_config_file_name"])

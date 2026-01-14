@@ -32,7 +32,7 @@ def train_model(config, tokenizer_src:Tokenizer, tokenizer_tgt:Tokenizer, traind
     # get the model on the device
     model = get_model(config, tokenizer_src.get_vocab_size(), tokenizer_tgt.get_vocab_size()).to(device)
     # tensorboard
-    writer = SummaryWriter(config['experiment']['name'])
+    writer = SummaryWriter(str(Path(config['experiment']['dir'])/"single_gpu"))
 
     # optimizer
     optimizer = torch.optim.Adam(model.parameters(), lr = config['model']['lr'], eps= 1e-9)
@@ -53,7 +53,7 @@ def train_model(config, tokenizer_src:Tokenizer, tokenizer_tgt:Tokenizer, traind
 
     if((last_epoch:=config['model'].get('last_epoch',None))): # there is already trained model
         # build model file path
-        model_file_name = f"{model_basename}_{last_epoch}.pt"
+        model_file_name = f"{model_basename}_model_{last_epoch}.pt"
         model_file = str(Path(model_dir) / model_file_name)
 
         # load previous model
@@ -174,12 +174,19 @@ def monitor_model(config, tokenizer_src:Tokenizer, tokenizer_tgt:Tokenizer, vali
 
 
 
+def train_single_gpu_interface(config_path):
+    warnings.filterwarnings("ignore")
+    config = get_config(config_path)
+    train_num_workers = 2
+    batch_size = config["batch_size"]
+    training_DS, valid_DS, training_DL, valid_DL, tokenizer_src, tokenizer_tgt = create_ds_dl(config, batch_size, train_num_workers)
+    train_model(config, tokenizer_src, tokenizer_tgt, training_DL)
+
+
 
 if __name__ == "__main__":
-    warnings.filterwarnings("ignore")
-    config = get_config("config.yml")
-    training_DS, valid_DS, training_DL, valid_DL, tokenizer_src, tokenizer_tgt = create_ds_dl(config)
-    train_model(config, tokenizer_src, tokenizer_tgt, training_DL)
+    config_path = "config.yml"
+    train_single_gpu_interface(config_path)
 
 
     # TODO: Think how to enter into the Efficiency, Quantization; some optimization faundamental concepts and methodsd

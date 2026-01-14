@@ -186,9 +186,9 @@ def train(rank, world_size, initial_epoch, global_step, model, traindataloader, 
             print("✅ model and the config stored/updates. ")
 
         # need to update the config[preload] and store it in Config file in Checkpoint
+    cleanup()
 
-
-def main(world_size: int, tokenizer_src:Tokenizer, tokenizer_tgt:Tokenizer, traindataloader: DataLoader, config: dict):
+def main(world_size: int, model, tokenizer_src:Tokenizer, tokenizer_tgt:Tokenizer, traindataloader: DataLoader, config: dict):
     """Make it ready to call train. Provides adjusted config, model, and optimizer to load previous model if available."""
     
     # distributed_dir = "distributed/multiNode_multiGPU"
@@ -252,33 +252,45 @@ def main(world_size: int, tokenizer_src:Tokenizer, tokenizer_tgt:Tokenizer, trai
 
 
 
-if __name__ == "__main__":
+def singleN_multipleGPU_main_interface(config_path):
     warnings.filterwarnings("ignore")
 
-    # get config
-    config = get_config("config.yml")
+    # check the Multi-GPUs available, since it is not yet provided for Mac unified chips.
+    if torch.backends.mps.is_available():
+        raise Exception("Multi-training is not applied in MPS Macbook chip environment.")
 
-    # effective batch
-    effective_batch = config["effective_batch"]
-    print(f">> Base: approximate effective batch size: {effective_batch}")
+    try:
+        # get config
+        config = get_config(config_path)
 
+        # effective batch
+        effective_batch = config["effective_batch"]
+        print(f">> Base: approximate effective batch size: {effective_batch}")
 
-    # Number of GPUs
-    gpu_num = torch.cuda.device_count()
-    world_size = gpu_num
-    print(f">> Base: number of GPU recognized: {world_size}")
+        # Number of GPUs
+        gpu_num = torch.cuda.device_count()
+        world_size = gpu_num
+        print(f">> Base: number of GPU recognized: {world_size}")
 
-    # find the batch num to be run in each GPU
-    each_gpu_batch = effective_batch // gpu_num
-    print(f">> Base: Each GPU batch num: {each_gpu_batch}")
+        # find the batch num to be run in each GPU
+        each_gpu_batch = effective_batch // gpu_num
+        print(f">> Base: Each GPU batch num: {each_gpu_batch}")
 
-    # training_DS, valid_DS, training_DL, valid_DL, tokenizer_src, tokenizer_tgt = create_ds_dl(config, batch_size = config["batch_size"], num_workers= 2 )
-    training_DS, valid_DS, training_DL, valid_DL, tokenizer_src, tokenizer_tgt = create_ds_dl(config, batch_size = each_gpu_batch, train_num_workers= 2)
-    print(">> Base: Dataset and Tokenizers loaded: OPUS Book")
+        # training_DS, valid_DS, training_DL, valid_DL, tokenizer_src, tokenizer_tgt = create_ds_dl(config, batch_size = config["batch_size"], num_workers= 2 )
+        training_DS, valid_DS, training_DL, valid_DL, tokenizer_src, tokenizer_tgt = create_ds_dl(config,
+                                                                                                  batch_size=each_gpu_batch,
+                                                                                                  train_num_workers=2)
+        print(">> Base: Dataset and Tokenizers loaded: OPUS Book")
 
-    # get the model on the device
-    model = get_model(config, tokenizer_src.get_vocab_size(), tokenizer_tgt.get_vocab_size())
-    print(f">> Base: Model loaded: {config['model']['model_basename']}")
+        # get the model on the device
+        model = get_model(config, tokenizer_src.get_vocab_size(), tokenizer_tgt.get_vocab_size())
+        print(f">> Base: Model loaded: {config['model']['model_basename']}")
 
-    # call the main Multi_GPU powered function
-    main(world_size, tokenizer_src, tokenizer_tgt, training_DL, config)
+        # call the main Multi_GPU powered function
+        main(world_size, model, tokenizer_src, tokenizer_tgt, training_DL, config)
+    except Exception as e:
+        raise(e)
+
+if __name__ == "__main__":
+    config_path = "config.yml"
+    singleN_multipleGPU_main_interface(config_path)
