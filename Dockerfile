@@ -13,4 +13,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Define the command to run your application when the container starts
-CMD ["python", "./train.py"]
+CMD ["python", "./main_cli.py"]
