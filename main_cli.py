@@ -2,6 +2,7 @@
 import argparse
 from train_singleN_multiG import singleN_multipleGPU_main_interface
 from train_singleG import train_single_gpu_interface
+import torch
 import sys
 
 def main_cli():
@@ -25,6 +26,13 @@ def main_cli():
             pass
         else:  # when single-node selected
             print("Single Node, multi GPU selected.")
+
+            # check the Multi-GPUs available, since it is not yet provided for Mac unified chips.
+            if torch.backends.mps.is_available():
+                raise Exception("Multi-training is not applied in MPS Macbook chip environment.")
+
+            # Number of GPUs
+            gpu_num = torch.cuda.device_count()
 
             # call the relevant function from train_singleN_multiG script
             singleN_multipleGPU_main_interface(config_path)

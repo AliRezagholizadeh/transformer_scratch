@@ -276,6 +276,7 @@ def singleN_multipleGPU_main_interface(config_path):
         each_gpu_batch = effective_batch // gpu_num
         print(f">> Base: Each GPU batch num: {each_gpu_batch}")
 
+
         # training_DS, valid_DS, training_DL, valid_DL, tokenizer_src, tokenizer_tgt = create_ds_dl(config, batch_size = config["batch_size"], num_workers= 2 )
         training_DS, valid_DS, training_DL, valid_DL, tokenizer_src, tokenizer_tgt = create_ds_dl(config,
                                                                                                   batch_size=each_gpu_batch,

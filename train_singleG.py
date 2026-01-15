@@ -177,7 +177,7 @@ def monitor_model(config, tokenizer_src:Tokenizer, tokenizer_tgt:Tokenizer, vali
 def train_single_gpu_interface(config_path):
     warnings.filterwarnings("ignore")
     config = get_config(config_path)
-    train_num_workers = 2
+    train_num_workers = 1
     batch_size = config["batch_size"]
     training_DS, valid_DS, training_DL, valid_DL, tokenizer_src, tokenizer_tgt = create_ds_dl(config, batch_size, train_num_workers)
     train_model(config, tokenizer_src, tokenizer_tgt, training_DL)
