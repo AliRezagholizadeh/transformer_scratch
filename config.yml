@@ -8,7 +8,7 @@ src_lang: en
 tgt_lang: fr
 batch_size: 8
 effective_batch: 32
-num_epochs: 20
+num_epochs: 50
 model:
 #    On_DS_name: OriginalTexts
     On_DS_name: OpusBText

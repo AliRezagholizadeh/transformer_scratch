@@ -3,3 +3,8 @@ transformer_practice.py
 checkpoints/*
 tokenizers/*
 TransOpusBook/*
+
+TODO.md
+experiment/*
+experiments/*
+

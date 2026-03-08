@@ -189,55 +189,6 @@ if __name__ == "__main__":
     train_single_gpu_interface(config_path)
 
 
-    # TODO: Think how to enter into the Efficiency, Quantization; some optimization faundamental concepts and methodsd
-    # To improve a NLP experiment:
-    # - Learn most from a single end-to-end concept (like a book, a topic in magazine, ..)
-    # -- Ability of GNNs
-    # -- think of multi-agent each reading and generating the same content.
-    # -- think of starting to read and generate (grasp) simpler text/concepts first
-    # -- think of intention to first learning and grasping deep from a well-contained info instead of learning over large volume of data.
-    # -- you might think of using RNN for letter base units to find a version of word embedding/representation
-    # -- Some books are more valuable/reliable in learning the word/sentence structure/grammar/meaning.
-    # -- you might think of applying different structure for the input of the transformer (as well as the structure of transformer itself)
-    # --- you might think of applying [meaning - word - meaning], [word, meaning, word], [first paragraph (structure: [encoder - decoder - output])
-    # --- [sentence, topic, sentence], [sentence, topic, topic], [topic, sentence, topic], [sentence1, topic, sentence2]
-    # --- Cores: titling a passage | generate a passage base on a topic | semantic core (learned from [word, meaning, word/meaning])
-    # -- you might think of combining both depth grasping and shallow grasping (but seeing vast resources) - like RandomExploration/IntentionallyExploration/Exploitation strategies in RL.
-    # -- Is it appropriate to add triangle one matrix to keep the word as a reference (reminder/practice to learn that word).
-    # * Consider several phases of the core model: 1- to update representations of the words to enable it to generate the same context. (consider how much the genrator stand on its feet to generate). 2- ... to generate the next sentence/paragraph. 3- ...
-    # - Is it possible to integrate Graphs and GNNs? like in structure learning. Is it possible to to integrate Graphs in combining memory (Tabular) and Function Approximation? For example we keep some relations between words/tokens and then apply Function Approximation to asign a title/category/concept to that Graph. This means: instead of having a representation for each word in a final space, we have a graph or representations cunstructed by graph.
-    # -- Different meaning of a word like 'get' should take separate subspace (room) in its space. Then, if several words share the same space, we need to expand the space of that subspace to a larger space.
-    # --- We might think of dynamic learning: emerging new node, refomatting nodes relations, removing old nodes, combining rooms, seperating rooms
-    # ---- Consider rooms in Tiles? reforming Tiles, connecting Tiles (like nodes in Graph)
-    # ----- Consider generating Transitional Weights (a layer weights) for each object (like word, token, concept) - OR a distributor weight to seperate rooms (like uniformly).
-    # ----- Is it possible to determine a range for weights with the aim of transiting an object to a Tile (an area). \
-    # ----- Is it correct that most of the current works are about to transit each word to random area; then, try to put the role to backpropagation in order to bring their representation closer.
-    # * We might need to use sophisticated Unsupervised Learning to cluster: Cluster performs like connecting close points in a group.
-    # - Back Regional mapping between two consequence spaces <-- This might open the opportunity of implementing adaptive layer. Is there any solution for another part: dynamic neurones (space dimention)
-
-    # Like to learn: AI (multi-)Agents cluster system, Agent Orchestration, multi-Agentic Workflow
-
-    # BIG Inspirations to me
-    # Projection Layer enlight the fact on how we can implement Action selection in RL.
-    # - It might say that we can use this layer variable N times to evaluate which action/word is most relevant/reseonable for that specific time.
-
-
-    # Points & Vision on the Transformer:
-    # * 1-word ahead prediction: the way of integrating the model in the experiment is effecting on the Agent/Unit functionality/mission.
-    # -- Label being 1-word shifted right (the current usage) brings the ability of predicting next word.
-    # * left-to-right attention: Lower Triangle Mask is used in the Multi-Head Att. at the Decoder brings the focus on left-to-right writing style in English.
-    # * Attention unit (specially in the Encoder) functions like
-
-
-    # To learn efficiently - mission: achieve a model reach to the capability of LLMs but with local computer capability:
-    # - Nested Learning: different sections with different mission and different learning speed
-    # - how to merge achievement of different agent of the same mission/structure - orchestrate the agent of the same mission
-    # -- Need updating the model's parameters from both directions: 1- within an agent from back propagation 2- from another agent of the same
-    # - how to find effective weights toward optimization
-    # - how can we gradually adapt the size of layers as well as embeddings as needed -in the way of speeding the learning, decrease the computational usage.
-    # -- how gradually enter to new higher dimension. first, start from a small dimension, like d_model of size 8. Then, increase the size for those words has more variety and concepts (or all words). That said, we can consider a simple representation for each word, like: peek similar to look, but get more depth as need more considerations.
-
-
 
 class ModelOnCloud:
     def __init__(self, data_model_name: str, data_shape: list, model: nn.Module, train_iter: int, batch_size: int, model_repository_url):
