@@ -167,7 +167,11 @@ def validation2():
 
 from config import get_config, find_model_conf_dir
 from pathlib import Path
-from train_singleG import get_model, create_torch_Dataset
+# import sys
+# PROJECT_PATH = Path(".").absolute().parent
+# sys.path.append(str(PROJECT_PATH))
+from data_handler import create_ds_dl
+from model import get_model
 
 if __name__ == "__main__":
     config = get_config("config.yml")
@@ -177,7 +181,9 @@ if __name__ == "__main__":
     device_name = "mps" if torch.backends.mps.is_available() else "cpu"
     device = torch.device(device_name)
     # get model object
-    training_DS, valid_DS, training_DL, valid_DL, tokenizer_src, tokenizer_tgt = create_torch_Dataset(config)
+    train_num_workers = 1
+    batch_size = config["batch_size"]
+    training_DS, valid_DS, training_DL, valid_DL, tokenizer_src, tokenizer_tgt = create_ds_dl(config, batch_size, train_num_workers)
     model = get_model(config, tokenizer_src.get_vocab_size(), tokenizer_tgt.get_vocab_size()).to(device)
 
     # load last model

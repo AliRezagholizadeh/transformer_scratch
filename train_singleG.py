@@ -53,7 +53,9 @@ def train_model(config, tokenizer_src:Tokenizer, tokenizer_tgt:Tokenizer, traind
 
     if((last_epoch:=config['model'].get('last_epoch',None))): # there is already trained model
         # build model file path
-        model_file_name = f"{model_basename}_model_{last_epoch}.pt"
+        # model_file_name = f"{model_basename}_model_{last_epoch}.pt"
+        model_file_name = f"{model_basename}_{last_epoch}.pt"
+
         model_file = str(Path(model_dir) / model_file_name)
 
         # load previous model
